@@ -65,15 +65,15 @@ func SetValue(c echo.Context, key string, value interface{}) error {
 // GetValue returns value of session.
 func GetValue(c echo.Context, key string) string {
 	sess := Get(c)
-if sess != nil {
+	if sess != nil {
 		if v, ok := sess.Values[key]; ok {
 			data, result := v.(string)
 			if result && data != "null" {
 				return data
 			}
 		}
-	   
-	            }
+
+	}
 	return ""
 }
 
