@@ -48,7 +48,6 @@ pipeline {
         }
 
         stage('Static Analytics (Go Vet)') {
-          
             steps {
               script {
                  def vetOutput = sh(script: 'go vet ./...', returnStatus: true)
