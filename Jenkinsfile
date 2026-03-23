@@ -5,6 +5,7 @@ pipeline {
     }
     environment {
         GO111MODULE='on'
+        PATH="/home/ketem/go/bin:${env.PATH}"
     }
 
     triggers {
@@ -21,6 +22,15 @@ pipeline {
         choice(name: 'ENVIRONMENT', choices: ['development', 'staging', 'production'], description: 'Select the deployment environment')
     }
 
+    stages {
+        stage('Security Scan') {
+            steps {
+                // Now Jenkins can find 'gosec' because it's in the PATH
+                sh 'gosec -version' 
+                sh 'gosec ./...'
+            }
+        }
+    }
     stages {
         stage('Test') {
             when {
