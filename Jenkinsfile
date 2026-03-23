@@ -18,7 +18,7 @@ pipeline {
         string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Which Git branch should we build?')
 
         booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run tests before building the application')
-        booleanParam(name: 'PUSH_DOCKER_IMAGE', defaultValue: false, description: 'Push the Docker image to the registry after building')
+        booleanParam(name: 'PUSH_DOCKER_IMAGE', defaultValue: true, description: 'Push the Docker image to the registry after building')
         choice(name: 'ENVIRONMENT', choices: ['development', 'staging', 'production'], description: 'Select the deployment environment')
     }
 
@@ -49,6 +49,9 @@ pipeline {
         }
 
         stage('Security Scan') {
+            when {
+                expression { return params.ENVIRONMENT == 'production' }
+            }
             steps {
                 // Now Jenkins can find 'gosec' because it's in the PATH
                 sh 'gosec -version'
@@ -104,6 +107,17 @@ pipeline {
 
                 sh 'go build -o go-webapp-sample .'
                 echo "the current build number is: ${env.BUILD_NUMBER}"
+            }
+        }
+
+        stage('Security: Image Scan (Trivy)') {
+            steps {
+                script {
+                    echo 'Scanning Docker image for OS vulnerabilities...'
+                    // --exit-code 1 tells Trivy to fail the Jenkins build if issues are found
+                    // --severity HIGH,CRITICAL ignores the small stuff and focuses on the big holes
+                    sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ketem/go-jenkins:${env.BUILD_NUMBER}"
+                }
             }
         }
 
