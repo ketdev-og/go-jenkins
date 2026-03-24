@@ -116,7 +116,7 @@ pipeline {
                     echo 'Scanning Docker image for OS vulnerabilities...'
                     // --exit-code 1 tells Trivy to fail the Jenkins build if issues are found
                     // --severity HIGH,CRITICAL ignores the small stuff and focuses on the big holes
-                    sh "trivy image --exit-code 1 --severity HIGH,CRITICAL --timeout 20m ketem/go-jenkins:${env.BUILD_NUMBER}"
+                    sh "trivy image --exit-code 1 --severity HIGH,CRITICAL --timeout 20m --no-progress ketem/go-jenkins:${env.BUILD_NUMBER}"
                 }
             }
         }
