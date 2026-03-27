@@ -177,7 +177,7 @@ pipeline {
 
                     sh "docker rm -f go-webapp-test || true"
 
-                    sh docker run -d -p 9001:8000 --name go-webapp-test ${IMAGE_NAME}:${FULL_VERSION}"
+                    sh "docker run -d -p 9001:8000 --name go-webapp-test ${IMAGE_NAME}:${FULL_VERSION}"
 
                     sleep 30
 
