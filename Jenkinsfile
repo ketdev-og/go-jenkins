@@ -50,8 +50,6 @@ pipeline {
             }
         }
 
-    
-
         stage('Security Scan') {
             when {
                 expression { return params.ENVIRONMENT == 'production' }
@@ -175,13 +173,32 @@ pipeline {
                         echo 'Deploying to development environment...'
                     }
 
-                    echo "Deploying ${IMAGE_NAME}:${FULL_VERSION} to UML..."
+                    echo "Deploying ${IMAGE_NAME}:${FULL_VERSION} to UML... test"
 
-                    sh "docker rm -f go-webapp || true"
+                    sh "docker rm -f go-webapp-test || true"
 
-                    sh "docker run -d -p 9000:8000 --name go-webapp ${IMAGE_NAME}:${FULL_VERSION}"
+                    sh docker run -d -p 9001:8000 --name go-webapp-test ${IMAGE_NAME}:${FULL_VERSION}"
 
-                    echo "Deployment successful! The app is now running on Port 9000."
+                    sleep 30
+
+                    def healthCheck = sh(script: "curl -s -f http://localhost:9001/health || echo 'FAILED'", returnStdout: true).trim()
+
+                    if (healthCheck == 'FAILED') {
+                        echo "🚨 Health check FAILED! Initiating Rollback..."echo "🚨 Health check FAILED! Initiating Rollback..."
+                        sh "docker rm -f go-webapp-test || true"
+                        error "Health check failed! The app did not start correctly. Check the logs for more details."
+                    } else {
+                        echo "Health check passed! The app is running correctly on the test environment."
+
+                         sh "docker rm -f go-webapp || true"
+
+                        sh "docker run -d -p 9000:8000 --name go-webapp ${IMAGE_NAME}:${FULL_VERSION}"
+
+                        sh "docker rm -f go-webapp-test || true"
+
+                        echo "Deployment successful! The app is now running on Port 9000."
+                    }
+
                 }
             }
         }
