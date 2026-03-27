@@ -218,8 +218,6 @@ pipeline {
                 
                 // 2. Determine if the pipeline Passed or Failed
                 def buildStatus = currentBuild.currentResult ?: 'SUCCESS'
-
-                echo "webhook url is: ${env.SLACK_WEBHOOK_URL}"
                 
                 // 3. Paste your Slack Webhook URL here
                 def slackURL = ${env.SLACK_WEBHOOK_URL}
