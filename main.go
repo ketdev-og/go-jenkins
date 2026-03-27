@@ -39,10 +39,9 @@ func main() {
 	middleware.InitLoggerMiddleware(e, container)
 	middleware.InitSessionMiddleware(e, container)
 
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	})
+	e.GET("/health", func(c echo.Context) error {
+        return c.String(http.StatusOK, "OK")
+    })
 
 	if conf.StaticContents.Path != "" {
 		e.Static("/", conf.StaticContents.Path)
