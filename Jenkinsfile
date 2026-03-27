@@ -5,7 +5,7 @@ pipeline {
     }
     environment {
         GO111MODULE = 'on'
-        IMAGE_NAME = 'ketem/go-jenkins'
+        IMAGE_NAME = "ketem/go-jenkins"
         PATH = "/home/ketem/go/bin:${env.PATH}"
         FULL_VERSION = ""
     }
