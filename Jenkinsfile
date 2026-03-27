@@ -179,7 +179,7 @@ pipeline {
 
                     sh "docker rm -f go-webapp || true"
 
-                    sh "docker run -d -p 9000:8080 --name go-webapp ${IMAGE_NAME}:${FULL_VERSION}"
+                    sh "docker run -d -p 9000:8000 --name go-webapp ${IMAGE_NAME}:${FULL_VERSION}"
 
                     echo "Deployment successful! The app is now running on Port 9000."
                 }
