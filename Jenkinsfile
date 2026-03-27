@@ -185,6 +185,7 @@ pipeline {
 
                     if (healthCheck == 'FAILED') {
                         echo "🚨 Health check FAILED! Initiating Rollback..."
+                        sh "docker logs go-webapp-test"
 
                         sh "docker rm -f go-webapp-test || true"
 
