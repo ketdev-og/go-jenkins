@@ -8,6 +8,7 @@ pipeline {
         IMAGE_NAME = 'ketem/go-jenkins'
         PATH = "/home/ketem/go/bin:${env.PATH}"
         FULL_VERSION = ""
+        SLACK_WEBHOOK_URL = credentials('slack-webhook')
     }
 
     triggers {
@@ -18,7 +19,6 @@ pipeline {
     parameters {
         // --- NEW: The String parameter for the Git branch! ---
         string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Which Git branch should we build?')
-
         booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run tests before building the application')
         booleanParam(name: 'PUSH_DOCKER_IMAGE', defaultValue: true, description: 'Push the Docker image to the registry after building')
         choice(name: 'ENVIRONMENT', choices: ['development', 'staging', 'production'], description: 'Select the deployment environment')
@@ -203,6 +203,32 @@ pipeline {
                     }
 
                 }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                echo "Sending notification to Slack..."
+                
+                // 1. Grab the Git Author and Commit Message
+                def commitAuthor = sh(script: "git log -1 --format='%an'", returnStdout: true).trim()
+                def commitMessage = sh(script: "git log -1 --format='%s'", returnStdout: true).trim()
+                
+                // 2. Determine if the pipeline Passed or Failed
+                def buildStatus = currentBuild.currentResult ?: 'SUCCESS'
+                
+                // 3. Paste your Slack Webhook URL here
+                def slackURL = ${env.SLACK_WEBHOOK_URL}
+                
+                // 4. Format the message for Slack (Slack uses * for bold instead of **)
+                def payload = """{"text": "🤖 *Jenkins Pipeline Update*\\n*Status:* `${buildStatus}`\\n*Author:* ${commitAuthor}\\n*Message:* ${commitMessage}\\n*Version:* `${FULL_VERSION}`"}"""
+                
+                // 5. Send it to Slack using curl!
+                sh "curl -s -X POST -H 'Content-type: application/json' --data '${payload}' ${slackURL}"
+                
+                echo "Slack notification sent!"
             }
         }
     }
