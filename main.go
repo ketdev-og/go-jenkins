@@ -40,8 +40,8 @@ func main() {
 	middleware.InitSessionMiddleware(e, container)
 
 	e.GET("/health", func(c echo.Context) error {
-        return c.String(http.StatusOK, "OK")
-    })
+		return c.String(http.StatusOK, "OK")
+	})
 
 	if conf.StaticContents.Path != "" {
 		e.Static("/", conf.StaticContents.Path)
