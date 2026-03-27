@@ -219,14 +219,12 @@ pipeline {
                 // 2. Determine if the pipeline Passed or Failed
                 def buildStatus = currentBuild.currentResult ?: 'SUCCESS'
                 
-                // 3. Paste your Slack Webhook URL here
-                def slackURL = ${env.SLACK_WEBHOOK_URL}
                 
                 // 4. Format the message for Slack (Slack uses * for bold instead of **)
                 def payload = """{"text": "🤖 *Jenkins Pipeline Update*\\n*Status:* `${buildStatus}`\\n*Author:* ${commitAuthor}\\n*Message:* ${commitMessage}\\n*Version:* `${FULL_VERSION}`"}"""
                 
                 // 5. Send it to Slack using curl!
-                sh "curl -l -X POST -H 'Content-type: application/json' --data '${payload}' ${slackURL}"
+                sh "curl -l -X POST -H 'Content-type: application/json' --data '${payload}' ${env.SLACK_WEBHOOK_URL}"
                 
                 echo "Slack notification sent!"
             }
