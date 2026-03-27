@@ -81,7 +81,7 @@ pipeline {
                 script {
                     def shortCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
 
-                    def timeStamp = sh(script: 'date -u +"%Y-%m-%dT%H,%M,%SZ"', returnStdout: true).trim()
+                    def timeStamp = sh(script: 'date -u +"%Y-%m-%dT%H.%M.%SZ"', returnStdout: true).trim()
 
                     FULL_VERSION = "${shortCommit}-b${env.BUILD_NUMBER}-${timeStamp}"
                     echo "The full version string is: ${FULL_VERSION}"
