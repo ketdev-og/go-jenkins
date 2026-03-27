@@ -184,8 +184,10 @@ pipeline {
                     def healthCheck = sh(script: "curl -s -f http://localhost:9001/health || echo 'FAILED'", returnStdout: true).trim()
 
                     if (healthCheck == 'FAILED') {
-                        echo "🚨 Health check FAILED! Initiating Rollback..."echo "🚨 Health check FAILED! Initiating Rollback..."
+                        echo "🚨 Health check FAILED! Initiating Rollback..."
+
                         sh "docker rm -f go-webapp-test || true"
+
                         error "Health check failed! The app did not start correctly. Check the logs for more details."
                     } else {
                         echo "Health check passed! The app is running correctly on the test environment."
