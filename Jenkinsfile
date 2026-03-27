@@ -148,7 +148,23 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Push to docker hub') {
+            when {
+                expression {return params.PUSH_DOCKER_IMAGE == true }
+            }
+            steps {
+                script {
+                    echo "Pushing ${IMAGE_NAME}:${FULL_VERSION} to Docker Hub..."
+
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
+                        app.push("${FULL_VERSION}")
+                        app.push('latest')
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Server') {
             steps {
                 script {
                     if (params.ENVIRONMENT == 'production') {
@@ -158,6 +174,14 @@ pipeline {
                     } else {
                         echo 'Deploying to development environment...'
                     }
+
+                    echo "Deploying ${IMAGE_NAME}:${FULL_VERSION} to UML..."
+
+                    sh "docker rm -f go-webapp || true"
+
+                    sh "docker run -d -p 9000:8080 --name go-webapp ${IMAGE_NAME}:${FULL_VERSION}"
+
+                    echo "Deployment successful! The app is now running on Port 9000."
                 }
             }
         }
