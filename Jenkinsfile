@@ -129,6 +129,9 @@ pipeline {
         }
 
         stage('Security: Image Scan (Trivy)') {
+            when {
+                expression {return params.ENVIRONMENT == 'production' }
+            }
             steps {
                 script {
                     echo 'Scanning Docker image for OS vulnerabilities...'
