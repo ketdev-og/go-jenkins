@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/ybkuroki/go-webapp-sample/config"
 	"github.com/ybkuroki/go-webapp-sample/container"
@@ -36,6 +38,11 @@ func main() {
 	router.Init(e, container)
 	middleware.InitLoggerMiddleware(e, container)
 	middleware.InitSessionMiddleware(e, container)
+
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
 
 	if conf.StaticContents.Path != "" {
 		e.Static("/", conf.StaticContents.Path)
