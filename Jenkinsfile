@@ -5,7 +5,9 @@ pipeline {
     }
     environment {
         GO111MODULE = 'on'
+        IMAGE_NAME = 'ketem/go-jenkins'
         PATH = "/home/ketem/go/bin:${env.PATH}"
+        FULL_VERSION = ""
     }
 
     triggers {
@@ -48,6 +50,8 @@ pipeline {
             }
         }
 
+    
+
         stage('Security Scan') {
             when {
                 expression { return params.ENVIRONMENT == 'production' }
@@ -72,6 +76,20 @@ pipeline {
             }
         }
 
+        stage('Versioning') {
+            steps {
+                script {
+                    def shortCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+
+                    def timeStamp = sh(script: 'date -u +"%Y-%m-%dT%H:%M:%SZ"', returnStdout: true).trim()
+
+                    FULL_VERSION = "${shortCommit}-b${env.BUILD_NUMBER}-${timeStamp}"
+                    echo "The full version string is: ${FULL_VERSION}"
+
+                }
+            }
+        }
+
         stage('Docker build') {
             when {
                 expression { return params.PUSH_DOCKER_IMAGE == true }
@@ -89,7 +107,7 @@ pipeline {
                     echo "We are building the feature: ${COMMIT_MESSAGE}"
 
                     // 2. Inject it dynamically into the Docker build command!
-                    app = docker.build("ketem/go-jenkins:${SHORT_COMMIT}")
+                    app = docker.build("${IMAGE_NAME}:${FULL_VERSION}")
 
                 // Optional Pro-Tip: You can also tag this exact same build as 'latest'
                 // app = docker.build("ketem/go-jenkins:latest")
@@ -116,7 +134,7 @@ pipeline {
                     echo 'Scanning Docker image for OS vulnerabilities...'
                     // --exit-code 1 tells Trivy to fail the Jenkins build if issues are found
                     // --severity HIGH,CRITICAL ignores the small stuff and focuses on the big holes
-                    sh "trivy image --exit-code 1 --severity HIGH,CRITICAL --timeout 20m --no-progress ketem/go-jenkins:${env.BUILD_NUMBER}"
+                    sh "trivy image --exit-code 1 --severity HIGH,CRITICAL --timeout 20m --no-progress ${IMAGE_NAME}:${FULL_VERSION}"
                 }
             }
         }
