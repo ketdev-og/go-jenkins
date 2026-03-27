@@ -226,7 +226,7 @@ pipeline {
                 def payload = """{"text": "🤖 *Jenkins Pipeline Update*\\n*Status:* `${buildStatus}`\\n*Author:* ${commitAuthor}\\n*Message:* ${commitMessage}\\n*Version:* `${FULL_VERSION}`"}"""
                 
                 // 5. Send it to Slack using curl!
-                sh "curl -s -X POST -H 'Content-type: application/json' --data '${payload}' ${slackURL}"
+                sh "curl -l -X POST -H 'Content-type: application/json' --data '${payload}' ${slackURL}"
                 
                 echo "Slack notification sent!"
             }
